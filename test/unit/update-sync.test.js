@@ -109,4 +109,39 @@ describe('etch.updateSync(component)', () => {
 
     expect(events).to.eql(['child-write', 'parent-write', 'child-read', 'parent-read'])
   })
+
+  it('throws a generic exception if undefined is returned from render', () => {
+    let renderItem = true
+    let component = {
+      render () {
+        return renderItem && <div/>
+      },
+
+      update () {}
+    }
+
+    etch.initialize(component)
+    renderItem = false
+    expect(function() {
+      etch.updateSync(component)
+    }).to.throw(/invalid falsy value/)
+  })
+
+  it('throws a class-specific exception if undefined is returned from render', () => {
+    let renderItem = true
+    class MyComponent {
+      render () {
+        return renderItem && <div/>
+      }
+
+      update () {}
+    }
+
+    let component = new MyComponent()
+    etch.initialize(component)
+    renderItem = false
+    expect(function() {
+      etch.updateSync(component)
+    }).to.throw(/invalid falsy value.*in MyComponent/)
+  })
 });
